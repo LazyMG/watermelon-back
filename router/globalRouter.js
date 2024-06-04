@@ -1,18 +1,22 @@
 import express from "express";
-import { home, search } from "../controller/globalController";
-import { upload } from "../controller/musicController";
-import { login, logout, profile } from "../controller/userController";
+import { getSearchResult } from "../controller/globalController";
+import {
+  getLogout,
+  postCreateAccount,
+  postGoogleLogin,
+  postLogin,
+} from "../controller/userController";
 
 export const globalRouter = express.Router();
 
-globalRouter.get("/", home);
+globalRouter.get("/", (req, res) => res.send("home"));
 
-globalRouter.get("/search", search);
+globalRouter.get("/search", getSearchResult);
 
-globalRouter.get("/upload", upload);
+globalRouter.post("/login", postLogin);
 
-globalRouter.get("/profile", profile);
+globalRouter.get("/logout", getLogout);
 
-globalRouter.get("/login", login);
+globalRouter.post("/create-account", postCreateAccount);
 
-globalRouter.get("/logout", logout);
+globalRouter.post("/google-login", postGoogleLogin);

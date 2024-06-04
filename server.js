@@ -2,8 +2,8 @@ import express from "express";
 import { globalRouter } from "./router/globalRouter";
 import { userRouter } from "./router/userRouter";
 import { musicRouter } from "./router/musicRouter";
-import { apiRouter } from "./router/apiRouter";
 import cors from "cors";
+import { playlistRouter } from "./router/playlistRouter";
 
 const app = express();
 
@@ -23,6 +23,6 @@ app.use(cors());
 app.use("/", globalRouter);
 app.use("/music", musicRouter);
 app.use("/user", userRouter);
-app.use("/api", apiRouter);
+app.use("/playlist", playlistRouter);
 
 export default app;

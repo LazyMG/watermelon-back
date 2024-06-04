@@ -1,16 +1,25 @@
 import User from "../models/User";
 
-export const profile = (req, res) => {
-  console.log("Profile");
-  return res.send("Profile");
+export const getLogout = (req, res) => {
+  return res.send("getLogout");
 };
 
-export const login = (req, res) => {
-  console.log("Login");
-  return res.send("Login");
+export const postLogin = (req, res) => {
+  return res.send("postLogin");
 };
 
-export const logout = (req, res) => {
-  console.log("Logout");
-  return res.send("Logout");
+export const postCreateAccount = (req, res) => {
+  return res.send("postCreateAccount");
+};
+
+export const getUser = (req, res) => {
+  return res.send("getUser");
+};
+
+export const editUser = (req, res) => {
+  return res.send("editUser");
+};
+
+export const postGoogleLogin = (req, res) => {
+  return res.send("postGoogleLogin");
 };

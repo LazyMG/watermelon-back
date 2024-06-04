@@ -1,6 +1,10 @@
 import Music from "../models/Music";
 import User from "../models/User";
 
+export const getSearchResult = async (req, res) => {
+  return res.send("getSearchResult");
+};
+
 export const home = async (req, res) => {
   console.log("home");
   //음악들 불러오기
@@ -11,9 +15,4 @@ export const home = async (req, res) => {
     .slice(0, 12);
   //console.log(recentMusics, recommendMusics);
   return res.json(allMusics);
-};
-
-export const search = (req, res) => {
-  console.log("search");
-  return res.send("Search");
 };

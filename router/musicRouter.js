@@ -8,4 +8,4 @@ import {
 export const musicRouter = express.Router();
 
 musicRouter.get("/list", getMusicList);
-musicRouter.route("/:id").get(getMusic).post(postMusic);
+musicRouter.route("/:id").get(getMusic);

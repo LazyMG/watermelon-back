@@ -20,9 +20,9 @@ app.use(express.json());
 
 app.use(cors());
 
-app.use("/", globalRouter);
 app.use("/music", musicRouter);
 app.use("/user", userRouter);
 app.use("/playlist", playlistRouter);
+app.use("/", globalRouter);
 
 export default app;

@@ -3,6 +3,7 @@ import Music from "../models/Music";
 import NewMusic from "../models/NewMusic";
 import Album from "../models/Album";
 import { v4 as uuidv4 } from "uuid";
+import mongoose from "mongoose";
 
 export const getSearchResult = async (req, res) => {
   return res.send("getSearchResult");
@@ -22,8 +23,67 @@ export const getArtist = async (req, res) => {
   return res.json(artist);
 };
 
+export const getAlbum = async (req, res) => {
+  const { albumId } = req.params;
+
+  let album;
+
+  try {
+    album = await Album.findById(albumId);
+  } catch (error) {
+    console.log(error);
+    return res.status(404).send("Failed");
+  }
+  return res.json(album);
+};
+
+//music에 artist 추가
+//artist의 musics에 music 추가
 export const postMusicToArtist = async (req, res) => {
   const { artistId, musicId } = req.body;
+
+  try {
+    await NewMusic.findByIdAndUpdate(musicId, {
+      artist: artistId,
+    });
+    await Artist.findByIdAndUpdate(artistId, {
+      $push: { musicList: musicId },
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(404).send("Failed");
+  }
+  return res.status(200).send("Success");
+};
+
+export const getAlbums = async (req, res) => {
+  let albums;
+
+  try {
+    albums = await Album.find({ isComplete: false });
+  } catch (error) {
+    console.log(error);
+    return res.status(404).send("Failed");
+  }
+  return res.json(albums);
+};
+
+//album에 artist 추가
+//artist의 album에 album 추가
+export const postAlbumToArtist = async (req, res) => {
+  const { artistId, albumId } = req.body;
+
+  try {
+    await Album.findByIdAndUpdate(albumId, {
+      artist: artistId,
+    });
+    await Artist.findByIdAndUpdate(artistId, {
+      $push: { albumList: albumId },
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(404).send("Failed");
+  }
   return res.status(200).send("Success");
 };
 
@@ -35,7 +95,6 @@ export const postArtist = async (req, res) => {
     artistName,
     imgUrl,
     debutDate,
-    id: uuidv4(),
   });
 
   return res.status(200).send("Success");
@@ -53,21 +112,27 @@ export const getArtists = async (req, res) => {
   return res.json(artists);
 };
 
-export const getAlbums = async (req, res) => {
-  let albums;
-
+export const getNoArtistAlbum = async (req, res) => {
+  let albumsWithoutArtist;
   try {
-    albums = await Album.find({});
+    albumsWithoutArtist = await Album.find({ artist: { $exists: false } });
   } catch (error) {
     console.log(error);
-    return res.status(404).send("Failed");
+    return res.send("error");
   }
-  return res.json(albums);
+  return res.json(albumsWithoutArtist);
 };
 
 export const postAlbum = async (req, res) => {
   console.log(req.body);
-  const { title, coverImg, releasedDate, duration, overview } = req.body;
+  const {
+    title,
+    coverImg,
+    releasedDate,
+    duration,
+    overview,
+    totalMusic,
+  } = req.body;
 
   await Album.create({
     title,
@@ -75,10 +140,21 @@ export const postAlbum = async (req, res) => {
     releasedDate,
     duration,
     overview,
-    id: uuidv4(),
+    totalMusic,
   });
 
   return res.status(200).send("Success");
+};
+
+export const getNoArtistMusic = async (req, res) => {
+  let musicsWithoutArtist;
+  try {
+    musicsWithoutArtist = await NewMusic.find({ artist: { $exists: false } });
+  } catch (error) {
+    console.log(error);
+    return res.redirect("/");
+  }
+  return res.json(musicsWithoutArtist);
 };
 
 export const testMusicUpload = async (req, res) => {
@@ -136,20 +212,9 @@ export const testConnectArtistToMusic = async (req, res) => {
     );
   } catch (error) {
     console.log(error);
-    return res.redirect("/");
+    return res.send("error");
   }
   return res.json(music);
-};
-
-export const getNoArtistMusic = async (req, res) => {
-  let musicsWithoutArtist;
-  try {
-    musicsWithoutArtist = await NewMusic.find({ artist: { $exists: false } });
-  } catch (error) {
-    console.log(error);
-    return res.redirect("/");
-  }
-  return res.json(musicsWithoutArtist);
 };
 
 export const home = async (req, res) => {

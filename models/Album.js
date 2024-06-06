@@ -3,23 +3,23 @@ import Artist from "./Artist";
 import NewMusic from "./NewMusic";
 
 const albumSchema = new mongoose.Schema({
-  title: { type: String, require: true },
+  title: { type: String, required: true },
   artist: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Artist",
   },
-  list: [
+  musicList: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "NewMusic",
     },
   ],
-  releasedDate: { type: String, require: true },
-  duration: { type: String, require: true },
+  releasedDate: { type: String, required: true },
+  duration: { type: String, required: true },
   overview: String,
-  coverImg: { type: String, require: true },
+  coverImg: { type: String, required: true },
   isComplete: { type: Boolean, default: false },
-  id: { type: String, require: true, unique: true },
+  totalMusic: { type: Number, required: true },
 });
 
 const Album = mongoose.model("Album", albumSchema);

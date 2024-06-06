@@ -3,9 +3,11 @@ import {
   getMusic,
   getMusicList,
   postMusic,
+  testGetAllMusics,
 } from "../controller/musicController";
 
 export const musicRouter = express.Router();
 
+musicRouter.get("/allMusic", testGetAllMusics);
 musicRouter.get("/list", getMusicList);
-musicRouter.route("/:id").get(getMusic);
+musicRouter.route("/:musicId").get(getMusic);

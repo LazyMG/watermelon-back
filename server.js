@@ -4,11 +4,24 @@ import { userRouter } from "./router/userRouter";
 import { musicRouter } from "./router/musicRouter";
 import cors from "cors";
 import { playlistRouter } from "./router/playlistRouter";
+import session from "express-session";
+import MongoStore from "connect-mongo";
 
 const app = express();
 
 app.use(express.urlencoded({ extended: true })); //req.body 사용시 필요
 app.use(express.json());
+
+app.use(
+  session({
+    secret: process.env.COOKIE_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({
+      mongoUrl: process.env.DB_URL,
+    }),
+  })
+);
 
 // app.use(function (req, res) {
 //   res.header("Access-Control-Allow-Origin", "https://cedarsojt.store");

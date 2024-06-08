@@ -1,15 +1,71 @@
+import NewUser from "../models/NewUser";
 import User from "../models/User";
 
 export const getLogout = (req, res) => {
+  req.session.destroy();
+  //처리
+  //프론트 로컬스토리지 삭제
   return res.send("getLogout");
 };
 
-export const postLogin = (req, res) => {
-  return res.send("postLogin");
+export const postLogin = async (req, res) => {
+  const { email, password } = req.body;
+
+  let user;
+  try {
+    user = await NewUser.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "Login Error" });
+    }
+    if (password !== user.password) {
+      return res.status(404).json({ message: "Login Error" });
+    }
+    req.session.loggedIn = true;
+    req.session.user = user;
+  } catch (error) {
+    return res.status(404).json({ message: "DB Error" });
+  }
+  return res.status(200).json({ message: "Login", user });
 };
 
-export const postCreateAccount = (req, res) => {
-  return res.send("postCreateAccount");
+export const postCreateAccount = async (req, res) => {
+  const { email, username, password, passwordConfirm } = req.body;
+
+  if (password !== passwordConfirm) {
+    return res.status(404).json({ message: "Password Error" });
+  }
+
+  try {
+    const emailExists = await NewUser.exists({ email });
+    if (emailExists) {
+      return res.status(404).json({ message: "Email already exists" });
+    }
+  } catch (error) {
+    return res.status(404).json({ message: "DB Error" });
+  }
+
+  let admin;
+
+  if (email === "어드민 이메일") {
+    admin = true;
+  } else {
+    admin = false;
+  }
+
+  try {
+    await NewUser.create({
+      email,
+      username,
+      password,
+      admin,
+    });
+  } catch (error) {
+    console.log(error);
+
+    return res.status(404).json({ message: "DB Error" });
+  }
+
+  return res.status(200).json({ message: "Create Account" });
 };
 
 export const getUser = (req, res) => {
@@ -20,6 +76,67 @@ export const editUser = (req, res) => {
   return res.send("editUser");
 };
 
-export const postGoogleLogin = (req, res) => {
-  return res.send("postGoogleLogin");
+export const postGoogleLogin = async (req, res) => {
+  const { accessToken } = req.body;
+
+  let info;
+  try {
+    info = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+    }).then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    });
+  } catch (error) {
+    console.error("Error fetching user info:", error);
+    return res.status(404).json({ message: "Login Error" });
+  }
+
+  let exists;
+
+  try {
+    exists = await NewUser.exists({ email: info.email });
+    console.log("있어!");
+  } catch (error) {
+    return res.status(404).json({ message: "DB Error" });
+  }
+
+  let user;
+  let admin;
+
+  if (!exists) {
+    if (info.email === "어드민 이메일") {
+      admin = true;
+    } else {
+      admin = false;
+    }
+    try {
+      user = await NewUser.create({
+        email: info.email,
+        username: info.name,
+        password: "/google",
+        admin,
+      });
+    } catch (error) {
+      return res.status(404).json({ message: "DB Error" });
+    }
+  } else {
+    try {
+      user = await NewUser.findOne({
+        email: info.email,
+      });
+    } catch (error) {
+      return res.status(404).json({ message: "DB Error" });
+    }
+  }
+  console.log(user);
+  req.session.loggedIn = true;
+  req.session.user = user;
+  return res.status(200).json({ message: "Login", user });
 };

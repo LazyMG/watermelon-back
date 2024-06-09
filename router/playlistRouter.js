@@ -11,9 +11,12 @@ export const playlistRouter = express.Router();
 
 playlistRouter.get("/list", getPlaylistList);
 
-playlistRouter
-  .route("/:id")
-  .get(getPlaylist)
-  .post(postPlaylist)
-  .patch(editPlaylist)
-  .delete(deletePlaylist);
+playlistRouter.get("/:id", getPlaylist);
+playlistRouter.post("/:id", postPlaylist);
+
+// playlistRouter
+//   .route("/:id")
+//   .get(getPlaylist)
+//   .post(postPlaylist)
+//   .patch(editPlaylist)
+//   .delete(deletePlaylist);

@@ -1,11 +1,76 @@
 import NewUser from "../models/NewUser";
+import PlayList from "../models/Playlist";
 import User from "../models/User";
+
+export const postUserPlaylist = async (req, res) => {
+  const { title, overview } = req.body;
+  const { id } = req.params;
+
+  let user;
+  let playlist;
+
+  try {
+    user = await NewUser.findById(id);
+  } catch (error) {
+    console.log(error);
+    return res.status(404).json({ message: "DB Error" });
+  }
+
+  if (!user) {
+    return res.status(404).json({ message: "No User" });
+  }
+
+  try {
+    playlist = await PlayList.create({
+      title,
+      owner: id,
+      overview,
+    });
+    //console.log(user);
+    await user.updateOne({
+      $push: { playlists: playlist._id },
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(404).json({ message: "DB Error" });
+  }
+  return res.status(200).json({ message: "Create Playlist", id: playlist._id });
+};
+
+export const getUserPlaylist = async (req, res) => {
+  const { id } = req.params;
+  let playlists;
+  let user;
+
+  try {
+    // user = await NewUser.findById(id).populate({
+    //   path: "playlists",
+    //   select: "_id title owner",
+    // });
+    //user = await NewUser.findById(id).populate("playlists");
+    user = await NewUser.findById(id).populate({
+      path: "playlists",
+      populate: {
+        path: "owner",
+        model: "NewUser", // 여기에 실제 User 모델 이름을 넣으세요
+        select: "username _id",
+      },
+    });
+    playlists = user.playlists;
+    //console.log(playlists);
+  } catch (error) {
+    console.log(error);
+    return res.status(404).json({ message: "DB Error" });
+  }
+
+  return res.status(200).json({ message: "Playlist", playlists });
+};
 
 export const getLogout = (req, res) => {
   req.session.destroy();
   //처리
-  //프론트 로컬스토리지 삭제
-  return res.send("getLogout");
+
+  return res.status(200).json({ message: "Logout", action: "delete" });
 };
 
 export const postLogin = async (req, res) => {
@@ -102,7 +167,6 @@ export const postGoogleLogin = async (req, res) => {
 
   try {
     exists = await NewUser.exists({ email: info.email });
-    console.log("있어!");
   } catch (error) {
     return res.status(404).json({ message: "DB Error" });
   }

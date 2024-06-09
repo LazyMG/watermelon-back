@@ -80,7 +80,7 @@ export const getMusic = async (req, res) => {
 export const getArtistMusic = async (req, res) => {};
 
 export const postMusic = async (req, res) => {
-  console.log(req.body);
+  //console.log(req.body);
   const { title, coverImg, ytId, genre, duration } = req.body;
 
   await NewMusic.create({

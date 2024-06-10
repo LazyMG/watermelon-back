@@ -13,6 +13,7 @@ playlistRouter.get("/list", getPlaylistList);
 
 playlistRouter.get("/:id", getPlaylist);
 playlistRouter.post("/:id", postPlaylist);
+playlistRouter.post("/delete/:id", deletePlaylist);
 
 // playlistRouter
 //   .route("/:id")

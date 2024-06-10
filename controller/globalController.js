@@ -6,7 +6,81 @@ import { v4 as uuidv4 } from "uuid";
 import mongoose from "mongoose";
 
 export const getSearchResult = async (req, res) => {
-  return res.send("getSearchResult");
+  const { keyword } = req.query;
+
+  let musics = [];
+  let artists = [];
+  let albums = [];
+
+  try {
+    // musics = await NewMusic.find({
+    //   title: {
+    //     $regex: new RegExp(keyword, "i"),
+    //   },
+    // })
+    //   .populate({
+    //     path: "artist",
+    //     select: "_id artistName imgUrl", // artist에서 _id와 title만 선택
+    //   })
+    //   .populate({
+    //     path: "album",
+    //     select: "_id title coverImg", // album에서 _id와 title만 선택
+    //   });
+    musics = await NewMusic.find({
+      $or: [
+        { title: { $regex: new RegExp(keyword, "i") } },
+        {
+          artist: {
+            $in: await Artist.find({
+              artistName: { $regex: new RegExp(keyword, "i") },
+            }).select("_id"),
+          },
+        },
+        {
+          album: {
+            $in: await Album.find({
+              title: { $regex: new RegExp(keyword, "i") },
+            }).select("_id"),
+          },
+        },
+      ],
+    })
+      .populate({ path: "artist" })
+      .populate({ path: "album" });
+    artists = await Artist.find({
+      artistName: {
+        $regex: new RegExp(keyword, "i"),
+      },
+    })
+      .populate({
+        path: "musicList",
+        select: "_id title coverImg", // artist에서 _id와 title만 선택
+      })
+      .populate({
+        path: "albumList",
+        select: "_id title coverImg", // album에서 _id와 title만 선택
+      });
+    albums = await Album.find({
+      title: {
+        $regex: new RegExp(keyword, "i"),
+      },
+    })
+      .populate({
+        path: "musicList",
+        select: "_id title coverImg", // artist에서 _id와 title만 선택
+      })
+      .populate({
+        path: "artist",
+        select: "_id artistName imgUrl", // album에서 _id와 title만 선택
+      });
+  } catch (error) {
+    console.log(error);
+    return res.status(404).json({ message: "DB Erorr", ok: false });
+  }
+
+  return res
+    .status(200)
+    .json({ message: "Search", data: { musics, artists, albums }, ok: true });
 };
 
 export const getArtist = async (req, res) => {

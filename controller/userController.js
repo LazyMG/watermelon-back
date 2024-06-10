@@ -1,3 +1,4 @@
+import Artist from "../models/Artist";
 import NewUser from "../models/NewUser";
 import PlayList from "../models/Playlist";
 import User from "../models/User";
@@ -133,8 +134,43 @@ export const postCreateAccount = async (req, res) => {
   return res.status(200).json({ message: "Create Account" });
 };
 
-export const getUser = (req, res) => {
-  return res.send("getUser");
+export const getUser = async (req, res) => {
+  const { id } = req.params;
+
+  let channel;
+  let isArtist = false;
+
+  try {
+    channel = await NewUser.findById(id)
+      .populate({ path: "playlists" })
+      .populate({ path: "likedMusic" })
+      .populate({ path: "recentMusic" });
+    if (!channel) {
+      channel = await Artist.findById(id)
+        .populate("albumList")
+        .populate({
+          path: "musicList",
+          options: { limit: 5 },
+          populate: [
+            {
+              path: "album",
+            },
+            {
+              path: "artist",
+            },
+          ],
+        });
+      isArtist = true;
+    }
+    //console.log(channel);
+  } catch (error) {
+    console.log(error);
+    return res.status(404).json({ message: "DB Error", ok: false });
+  }
+
+  return res
+    .status(200)
+    .json({ message: "Channel Data", channel, isArtist, ok: true });
 };
 
 export const editUser = (req, res) => {

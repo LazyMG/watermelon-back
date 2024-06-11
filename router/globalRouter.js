@@ -48,12 +48,6 @@ globalRouter.get("/connect/album", getAlbums);
 globalRouter.get("/connect/albumMusic", getNoAlbumMusic);
 globalRouter.post("/connect/albumMusic", postMusicToAlbum);
 
-globalRouter.post("/testMusicUpload", testMusicUpload);
-
-globalRouter.post("/testArtistUpload", testArtistUpload);
-
-globalRouter.post("/testConnectArtistToMusic", testConnectArtistToMusic);
-
 globalRouter.get("/testNoArtistMusic", getNoArtistMusic);
 
 globalRouter.get("/search", getSearchResult);

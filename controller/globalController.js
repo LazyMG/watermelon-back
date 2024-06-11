@@ -2,7 +2,6 @@ import Artist from "../models/Artist";
 import Music from "../models/Music";
 import NewMusic from "../models/NewMusic";
 import Album from "../models/Album";
-import { v4 as uuidv4 } from "uuid";
 import mongoose from "mongoose";
 
 export const getSearchResult = async (req, res) => {
@@ -92,9 +91,9 @@ export const getArtist = async (req, res) => {
     artist = await Artist.findById(artistId);
   } catch (error) {
     console.log(error);
-    return res.status(404).send("Failed");
+    return res.status(404).json({ message: "DB Erorr", ok: false });
   }
-  return res.json(artist);
+  return res.status(200).json({ message: "Artist", artist, ok: true });
 };
 
 export const getAlbum = async (req, res) => {
@@ -106,13 +105,11 @@ export const getAlbum = async (req, res) => {
     album = await Album.findById(albumId);
   } catch (error) {
     console.log(error);
-    return res.status(404).send("Failed");
+    return res.status(404).json({ message: "DB Erorr", ok: false });
   }
-  return res.json(album);
+  return res.status(200).json(album);
 };
 
-//music에 artist 추가
-//artist의 musics에 music 추가
 export const postMusicToArtist = async (req, res) => {
   const { artistId, musicId } = req.body;
 
@@ -125,7 +122,7 @@ export const postMusicToArtist = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    return res.status(404).send("Failed");
+    return res.status(404).json({ message: "DB Erorr", ok: false });
   }
   return res.status(200).send("Success");
 };
@@ -137,13 +134,11 @@ export const getAlbums = async (req, res) => {
     albums = await Album.find({ isComplete: false });
   } catch (error) {
     console.log(error);
-    return res.status(404).send("Failed");
+    return res.status(404).json({ message: "DB Erorr", ok: false });
   }
   return res.json(albums);
 };
 
-//album에 artist 추가
-//artist의 album에 album 추가
 export const postAlbumToArtist = async (req, res) => {
   const { artistId, albumId } = req.body;
 
@@ -156,7 +151,7 @@ export const postAlbumToArtist = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    return res.status(404).send("Failed");
+    return res.status(404).json({ message: "DB Erorr", ok: false });
   }
   return res.status(200).send("Success");
 };
@@ -165,11 +160,16 @@ export const postArtist = async (req, res) => {
   console.log(req.body);
   const { artistName, debutDate, imgUrl } = req.body;
 
-  await Artist.create({
-    artistName,
-    imgUrl,
-    debutDate,
-  });
+  try {
+    await Artist.create({
+      artistName,
+      imgUrl,
+      debutDate,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(404).json({ message: "DB Erorr", ok: false });
+  }
 
   return res.status(200).send("Success");
 };
@@ -181,24 +181,26 @@ export const getArtists = async (req, res) => {
     artists = await Artist.find({});
   } catch (error) {
     console.log(error);
-    return res.status(404).send("Failed");
+    return res.status(404).json({ message: "DB Erorr", ok: false });
   }
+
   return res.json(artists);
 };
 
 export const getNoArtistAlbum = async (req, res) => {
   let albumsWithoutArtist;
+
   try {
     albumsWithoutArtist = await Album.find({ artist: { $exists: false } });
   } catch (error) {
     console.log(error);
-    return res.send("error");
+    return res.status(404).json({ message: "DB Erorr", ok: false });
   }
+
   return res.json(albumsWithoutArtist);
 };
 
 export const postAlbum = async (req, res) => {
-  console.log(req.body);
   const {
     title,
     coverImg,
@@ -208,87 +210,33 @@ export const postAlbum = async (req, res) => {
     totalMusic,
   } = req.body;
 
-  await Album.create({
-    title,
-    coverImg,
-    releasedDate,
-    duration,
-    overview,
-    totalMusic,
-  });
+  try {
+    await Album.create({
+      title,
+      coverImg,
+      releasedDate,
+      duration,
+      overview,
+      totalMusic,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(404).json({ message: "DB Erorr", ok: false });
+  }
 
   return res.status(200).send("Success");
 };
 
 export const getNoArtistMusic = async (req, res) => {
   let musicsWithoutArtist;
+
   try {
     musicsWithoutArtist = await NewMusic.find({ artist: { $exists: false } });
   } catch (error) {
     console.log(error);
-    return res.redirect("/");
+    return res.status(404).json({ message: "DB Erorr", ok: false });
   }
   return res.json(musicsWithoutArtist);
-};
-
-export const testMusicUpload = async (req, res) => {
-  const title = "testMusic3";
-  const coverImg = "testCoverImg3";
-  const ytId = "testYtId3";
-  const genre = "testGenre3";
-  const duration = "testDuration3";
-
-  try {
-    await NewMusic.create({
-      title,
-      coverImg,
-      ytId,
-      genre,
-      duration,
-    });
-  } catch (error) {
-    console.log(error);
-    return res.send("error");
-  }
-
-  return res.redirect("/");
-};
-
-export const testArtistUpload = async (req, res) => {
-  const artistname = "testArtistName";
-  const debutDate = "testDebutDate";
-  const id = "1234";
-
-  try {
-    await Artist.create({
-      artistname,
-      debutDate,
-      id,
-    });
-  } catch (error) {
-    console.log(error);
-    return res.send("error");
-  }
-  return res.redirect("/");
-};
-
-export const testConnectArtistToMusic = async (req, res) => {
-  let artist;
-  let music;
-
-  try {
-    artist = await Artist.findOne({
-      id: "1234",
-    });
-    music = await NewMusic.findOneAndUpdate(
-      { ytId: "testYtId" },
-      { artist: artist._id }
-    );
-  } catch (error) {
-    console.log(error);
-    return res.send("error");
-  }
-  return res.json(music);
 };
 
 export const home = async (req, res) => {

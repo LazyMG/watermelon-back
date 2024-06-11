@@ -59,7 +59,13 @@ export const getPlaylist = async (req, res) => {
     });
     if (!playlist) {
       playlist = await Album.findById(id)
-        .populate({ path: "musicList" })
+        .populate({
+          path: "musicList",
+          populate: [
+            { path: "artist", select: "_id artistName" },
+            { path: "album", select: "_id title" },
+          ],
+        })
         .populate({ path: "artist" });
       isAlbum = true;
     }

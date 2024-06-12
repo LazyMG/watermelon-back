@@ -3,6 +3,9 @@ import NewUser from "../models/NewUser";
 import PlayList from "../models/Playlist";
 import User from "../models/User";
 
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+
 export const postUserPlaylist = async (req, res) => {
   const { title, overview } = req.body;
   const { id } = req.params;
@@ -78,20 +81,34 @@ export const postLogin = async (req, res) => {
   const { email, password } = req.body;
 
   let user;
+
   try {
     user = await NewUser.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: "Login Error" });
     }
-    if (password !== user.password) {
-      return res.status(404).json({ message: "Login Error" });
+
+    const isPasswordRight = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordRight) {
+      return res.status(404).json({ message: "Login Password Error" });
     }
+
     req.session.loggedIn = true;
-    req.session.user = user;
+    req.session.userId = user.id;
   } catch (error) {
+    console.log(error);
     return res.status(404).json({ message: "DB Error" });
   }
-  return res.status(200).json({ message: "Login", user });
+
+  let token;
+  token = jwt.sign({ userId: user.id }, "supersecret_dont_share", {
+    expiresIn: "1h",
+  });
+
+  return res
+    .status(200)
+    .json({ message: "Login", user, ok: true, token, userId: user.id });
 };
 
 export const postCreateAccount = async (req, res) => {
@@ -117,21 +134,35 @@ export const postCreateAccount = async (req, res) => {
   } else {
     admin = false;
   }
+  let encryptedPassword = password;
 
   try {
-    await NewUser.create({
+    encryptedPassword = await bcrypt.hash(password, 10);
+  } catch (error) {
+    console.log(error);
+    return res.status(404).json({ message: "Password Hash Error" });
+  }
+
+  let createdUser;
+
+  try {
+    createdUser = await NewUser.create({
       email,
       username,
-      password,
+      password: encryptedPassword,
       admin,
     });
   } catch (error) {
     console.log(error);
-
     return res.status(404).json({ message: "DB Error" });
   }
 
-  return res.status(200).json({ message: "Create Account" });
+  let token;
+  token = jwt.sign({ userId: createdUser.id }, "supersecret_dont_share", {
+    expiresIn: "1h",
+  });
+
+  return res.status(200).json({ message: "Create Account", ok: true, token });
 };
 
 export const getUser = async (req, res) => {

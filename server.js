@@ -12,13 +12,22 @@ const app = express();
 app.use(express.urlencoded({ extended: true })); //req.body 사용시 필요
 app.use(express.json());
 
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  next();
+});
+
 app.use(
   session({
     secret: process.env.COOKIE_SECRET,
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
-      mongoUrl: process.env.DB_URL,
+      mongoUrl: process.env.DB_URL_MONGO,
     }),
   })
 );
@@ -31,7 +40,12 @@ app.use(
 //   );
 // });
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 
 app.use("/music", musicRouter);
 app.use("/user", userRouter);

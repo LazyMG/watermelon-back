@@ -1,3 +1,5 @@
+import { populate } from "dotenv";
+import Album from "../models/Album";
 import Artist from "../models/Artist";
 import NewUser from "../models/NewUser";
 import PlayList from "../models/Playlist";
@@ -5,6 +7,105 @@ import User from "../models/User";
 
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+
+export const postDeleteUserPlaylist = async (req, res) => {
+  const { playlistId } = req.body;
+  const { id } = req.params;
+
+  let user;
+  let playlist;
+  let isPlaylist = true;
+
+  try {
+    user = await NewUser.findById(id);
+  } catch (error) {
+    console.log(error);
+    return res.status(404).json({ message: "DB Error", ok: false });
+  }
+
+  if (!user) {
+    return res.status(404).json({ message: "No User", ok: false });
+  }
+
+  try {
+    playlist = await PlayList.findById(playlistId);
+    if (!playlist) {
+      isPlaylist = false;
+      playlist = await Album.findById(playlistId);
+    }
+  } catch (error) {
+    return res.status(404).json({ message: "DB Error", ok: false });
+  }
+
+  try {
+    if (isPlaylist) {
+      await user.updateOne({
+        $pull: { playlists: playlist._id },
+      });
+    } else {
+      await user.updateOne({
+        $pull: { albums: playlist._id },
+      });
+    }
+  } catch (error) {
+    return res.status(404).json({ message: "DB Error", ok: false });
+  }
+  return res
+    .status(200)
+    .json({ message: "Delete Playlist", isUserHasPlaylist: false, ok: true });
+};
+
+export const postAddUserPlaylist = async (req, res) => {
+  const { playlistId } = req.body;
+  const { id } = req.params;
+
+  let user;
+  let playlist;
+  let isPlaylist = true;
+
+  try {
+    user = await NewUser.findById(id);
+  } catch (error) {
+    console.log(error);
+    return res.status(404).json({ message: "DB Error", ok: false });
+  }
+
+  if (!user) {
+    return res.status(404).json({ message: "No User", ok: false });
+  }
+
+  try {
+    playlist = await PlayList.findById(playlistId).populate("owner");
+    if (!playlist) {
+      isPlaylist = false;
+      playlist = await Album.findById(playlistId).populate("artist");
+    }
+  } catch (error) {
+    return res.status(404).json({ message: "DB Error", ok: false });
+  }
+
+  try {
+    if (isPlaylist) {
+      await user.updateOne({
+        $push: { playlists: playlistId },
+      });
+    } else {
+      await user.updateOne({
+        $push: { albums: playlistId },
+      });
+    }
+  } catch (error) {
+    return res.status(404).json({ message: "DB Error", ok: false });
+  }
+
+  //console.log(user)
+  return res.status(200).json({
+    message: "Add Playlist",
+    playlist,
+    ok: true,
+    isUserHasPlaylist: true,
+  });
+};
 
 export const postUserPlaylist = async (req, res) => {
   const { title, overview } = req.body;
@@ -44,6 +145,7 @@ export const postUserPlaylist = async (req, res) => {
 export const getUserPlaylist = async (req, res) => {
   const { id } = req.params;
   let playlists;
+  let albums;
   let user;
 
   try {
@@ -52,27 +154,37 @@ export const getUserPlaylist = async (req, res) => {
     //   select: "_id title owner",
     // });
     //user = await NewUser.findById(id).populate("playlists");
-    user = await NewUser.findById(id).populate({
-      path: "playlists",
-      populate: {
-        path: "owner",
-        model: "NewUser", // 여기에 실제 User 모델 이름을 넣으세요
-        select: "username _id",
-      },
-    });
+    user = await NewUser.findById(id)
+      .populate({
+        path: "playlists",
+        populate: {
+          path: "owner",
+          model: "NewUser",
+          select: "username _id",
+        },
+      })
+      .populate({
+        path: "albums",
+        select: "coverImg title _id",
+        populate: { path: "artist", model: "Artist", select: "_id artistName" },
+      });
     playlists = user.playlists;
-    //console.log(playlists);
+    albums = user.albums;
   } catch (error) {
     console.log(error);
     return res.status(404).json({ message: "DB Error" });
   }
 
-  return res.status(200).json({ message: "Playlist", playlists });
+  return res
+    .status(200)
+    .json({ message: "Playlist", playlists, albums, ok: true });
 };
 
 export const getLogout = (req, res) => {
   req.session.destroy();
   //처리
+
+  console.log("삭제후", req.session);
 
   return res.status(200).json({ message: "Logout", action: "delete" });
 };
@@ -93,9 +205,13 @@ export const postLogin = async (req, res) => {
     if (!isPasswordRight) {
       return res.status(404).json({ message: "Login Password Error" });
     }
-
+    //이름이랑 아이디
     req.session.loggedIn = true;
-    req.session.userId = user.id;
+    req.session.user = {
+      userId: user.id,
+      username: user.username,
+      admin: user.admin,
+    };
   } catch (error) {
     console.log(error);
     return res.status(404).json({ message: "DB Error" });
@@ -106,9 +222,12 @@ export const postLogin = async (req, res) => {
     expiresIn: "1h",
   });
 
-  return res
-    .status(200)
-    .json({ message: "Login", user, ok: true, token, userId: user.id });
+  return res.status(200).json({
+    message: "Login",
+    ok: true,
+    token,
+    user: { userId: user._id, username: user.username, admin: user.admin },
+  });
 };
 
 export const postCreateAccount = async (req, res) => {
@@ -227,7 +346,7 @@ export const postGoogleLogin = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching user info:", error);
-    return res.status(404).json({ message: "Login Error" });
+    return res.status(404).json({ message: "Login Error", ok: false });
   }
 
   let exists;
@@ -235,7 +354,7 @@ export const postGoogleLogin = async (req, res) => {
   try {
     exists = await NewUser.exists({ email: info.email });
   } catch (error) {
-    return res.status(404).json({ message: "DB Error" });
+    return res.status(404).json({ message: "DB Error", ok: false });
   }
 
   let user;
@@ -255,7 +374,7 @@ export const postGoogleLogin = async (req, res) => {
         admin,
       });
     } catch (error) {
-      return res.status(404).json({ message: "DB Error" });
+      return res.status(404).json({ message: "DB Error", ok: false });
     }
   } else {
     try {
@@ -263,11 +382,18 @@ export const postGoogleLogin = async (req, res) => {
         email: info.email,
       });
     } catch (error) {
-      return res.status(404).json({ message: "DB Error" });
+      return res.status(404).json({ message: "DB Error", ok: false });
     }
   }
-  console.log(user);
   req.session.loggedIn = true;
-  req.session.user = user;
-  return res.status(200).json({ message: "Login", user });
+  req.session.user = {
+    userId: user.id,
+    username: user.username,
+    admin: user.admin,
+  };
+  return res.status(200).json({
+    message: "Login",
+    ok: true,
+    user: { userId: user._id, username: user.username, admin: user.admin },
+  });
 };

@@ -29,6 +29,7 @@ export const editPlaylist = (req, res) => {
 export const deletePlaylist = async (req, res) => {
   const { id } = req.params;
   const { userId } = req.body;
+
   try {
     await PlayList.findByIdAndDelete(id);
     await NewUser.findByIdAndUpdate(
@@ -46,8 +47,12 @@ export const deletePlaylist = async (req, res) => {
 export const getPlaylist = async (req, res) => {
   const { id } = req.params;
 
+  const userId = req.session.user?.userId;
+
   let playlist;
   let isAlbum = false;
+  let user;
+  let isUserHasPlaylist = false;
 
   try {
     playlist = await PlayList.findById(id).populate({
@@ -75,7 +80,35 @@ export const getPlaylist = async (req, res) => {
     return res.status(404).json({ message: "DB Error", ok: false });
   }
 
-  return res
-    .status(200)
-    .json({ message: "Get Playlist", playlist, isAlbum, ok: true });
+  try {
+    if (userId) {
+      user = await NewUser.findById(userId)
+        .populate("playlists")
+        .populate("albums");
+      const userPlaylists = user.playlists;
+      isUserHasPlaylist = userPlaylists.some(
+        (list) => list._id.toString() === playlist._id.toString()
+      );
+
+      if (!isUserHasPlaylist) {
+        const userAlbums = user.albums;
+        isUserHasPlaylist = userAlbums.some(
+          (list) => list._id.toString() === playlist._id.toString()
+        );
+      }
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(404).json({ message: "DB Error", ok: false });
+  }
+  // console.log("user", user);
+  // console.log("playlist", playlist);
+
+  return res.status(200).json({
+    message: "Get Playlist",
+    playlist,
+    isAlbum,
+    ok: true,
+    isUserHasPlaylist,
+  });
 };

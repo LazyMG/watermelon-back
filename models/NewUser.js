@@ -13,6 +13,12 @@ const userSchema = new mongoose.Schema({
       ref: "Playlist",
     },
   ],
+  albums: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Album",
+    },
+  ],
   createdAt: { type: Date, default: Date.now },
   likedMusic: [
     {

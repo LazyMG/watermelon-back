@@ -28,6 +28,8 @@ app.use(
     saveUninitialized: false,
     store: MongoStore.create({
       mongoUrl: process.env.DB_URL_MONGO,
+      ttl: 1 * 24 * 60 * 60, // 14 days expiration (you can adjust this)
+      autoRemove: "native",
     }),
   })
 );

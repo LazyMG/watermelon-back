@@ -35,9 +35,13 @@ DB 설계 및 구현 과정을 통해 프론트엔드 개발자로서 전체 데
 <br/>
 
 ### 사용방법
-서비스를 이용하기 위해서 백엔드 서버가 먼저 구동되어야 합니다.
+서비스를 이용하기 위해서 백엔드 서버가 먼저 동작해야 합니다. 백엔드 서버 링크를 들어가 서버를 동작시킵니다.
 <br/>
 백엔드 프로젝트 배포 링크 : [https://watermelon-back-lmg.fly.dev/](https://watermelon-back-lmg.fly.dev/)
+<br/>
+그후 프론트엔드 배포 링크로 서비스를 이용합니다.
+
+
 <br/>
 프론트엔드 프로젝트 배포 링크 : [https://watermelon-lmg.netlify.app/](https://watermelon-lmg.netlify.app/)
 <br/>

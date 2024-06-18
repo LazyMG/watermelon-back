@@ -39,19 +39,19 @@ DB 설계 및 구현 과정을 통해 프론트엔드 개발자로서 전체 데
 쿠키에 관한 문제를 겪으면서 보안에 대해 생각해보게 되었습니다. 현재 해결한 것이 임시방편이라 생각하고 보다 안전하고 효율적으로 쿠키를 교환할 수 있는 방식을 고민해보게 되었습니다.
 <br/>
 
-### 사용방법
+### 이용방법
 
 서비스를 이용하기 위해서 백엔드 서버가 먼저 동작해야 합니다. 백엔드 서버 링크를 들어가 서버를 동작시킵니다.
 <br/>
 백엔드 프로젝트 배포 링크 : [https://watermelon-back-lmg.fly.dev/](https://watermelon-back-lmg.fly.dev/)
 <br/>
 그후 프론트엔드 배포 링크로 서비스를 이용합니다.
-
 <br/>
 프론트엔드 프로젝트 배포 링크 : [https://watermelon-lmg.netlify.app/](https://watermelon-lmg.netlify.app/)
 <br/>
+자세한 이용 방법은 노션 링크를 참조해주세요. [노션 링크](https://lazy-mg.notion.site/1064dd2d09c64cfd8d4daf48ab126b69?pvs=4)
 
 ### 관련 링크
 
-노션 계획표 : [https://precious-switch-692.notion.site/7b1dcd5713e64d61b1537b70c0bc5e46?pvs=4](https://precious-switch-692.notion.site/7b1dcd5713e64d61b1537b70c0bc5e46?pvs=4)<br/>
-블로그 기록 : [https://velog.io/@cbfmark/series/%ED%86%A0%EC%9D%B4%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%EC%9C%A0%ED%8A%9C%EB%B8%8C%EB%AE%A4%EC%A7%81](https://velog.io/@cbfmark/series/%ED%86%A0%EC%9D%B4%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%EC%9C%A0%ED%8A%9C%EB%B8%8C%EB%AE%A4%EC%A7%81)
+노션 계획표 : [링크](https://lazy-mg.notion.site/7b1dcd5713e64d61b1537b70c0bc5e46?pvs=4)<br/>
+블로그 기록 : [링크](https://velog.io/@cbfmark/series/%ED%86%A0%EC%9D%B4%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%EC%9C%A0%ED%8A%9C%EB%B8%8C%EB%AE%A4%EC%A7%81)

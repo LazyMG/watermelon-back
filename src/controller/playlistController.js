@@ -3,10 +3,6 @@ import NewMusic from "../models/NewMusic";
 import NewUser from "../models/NewUser";
 import PlayList from "../models/Playlist";
 
-export const getPlaylistList = (req, res) => {
-  return res.send("getPlaylistList");
-};
-
 export const postPlaylist = async (req, res) => {
   const { musicId } = req.body;
   const { id } = req.params;

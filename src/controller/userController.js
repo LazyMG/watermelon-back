@@ -1,12 +1,20 @@
-import { populate } from "dotenv";
 import Album from "../models/Album";
 import Artist from "../models/Artist";
 import NewUser from "../models/NewUser";
 import PlayList from "../models/Playlist";
-import User from "../models/User";
 
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+
+export const getSession = async (req, res) => {
+  console.log("auth", req.session);
+  if (req.session.loggedIn) {
+    return res
+      .status(200)
+      .json({ message: "Auth Confirm", ok: true, user: req.session.user });
+  }
+  return res.json({ message: "No Auth", ok: false });
+};
 
 export const postDeleteUserPlaylist = async (req, res) => {
   const { playlistId } = req.body;
@@ -203,7 +211,11 @@ export const postLogin = async (req, res) => {
     const isPasswordRight = await bcrypt.compare(password, user.password);
 
     if (!isPasswordRight) {
-      return res.status(404).json({ message: "Login Password Error" });
+      return res.status(404).json({
+        message: "Login Password Error",
+        ok: false,
+        type: "USER",
+      });
     }
     //이름이랑 아이디
     req.session.loggedIn = true;
@@ -214,8 +226,9 @@ export const postLogin = async (req, res) => {
     };
   } catch (error) {
     console.log(error);
-    return res.status(404).json({ message: "DB Error" });
+    return res.status(404).json({ message: "DB Error", ok: false, type: "DB" });
   }
+  console.log("로그인 후", req.session);
 
   let token;
   token = jwt.sign({ userId: user.id }, "supersecret_dont_share", {
@@ -234,16 +247,20 @@ export const postCreateAccount = async (req, res) => {
   const { email, username, password, passwordConfirm } = req.body;
 
   if (password !== passwordConfirm) {
-    return res.status(404).json({ message: "Password Error" });
+    return res
+      .status(404)
+      .json({ message: "Password Error", ok: false, type: "USER" });
   }
 
   try {
     const emailExists = await NewUser.exists({ email });
     if (emailExists) {
-      return res.status(404).json({ message: "Email already exists" });
+      return res
+        .status(404)
+        .json({ message: "Email already exists", ok: false, type: "EMAIL" });
     }
   } catch (error) {
-    return res.status(404).json({ message: "DB Error" });
+    return res.status(404).json({ message: "DB Error", ok: false, type: "DB" });
   }
 
   let admin;
@@ -259,7 +276,9 @@ export const postCreateAccount = async (req, res) => {
     encryptedPassword = await bcrypt.hash(password, 10);
   } catch (error) {
     console.log(error);
-    return res.status(404).json({ message: "Password Hash Error" });
+    return res
+      .status(404)
+      .json({ message: "Password Hash Error", ok: false, type: "DB" });
   }
 
   let createdUser;
@@ -273,7 +292,7 @@ export const postCreateAccount = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    return res.status(404).json({ message: "DB Error" });
+    return res.status(404).json({ message: "DB Error", ok: false, type: "DB" });
   }
 
   let token;
@@ -321,10 +340,6 @@ export const getUser = async (req, res) => {
   return res
     .status(200)
     .json({ message: "Channel Data", channel, isArtist, ok: true });
-};
-
-export const editUser = (req, res) => {
-  return res.send("editUser");
 };
 
 export const postGoogleLogin = async (req, res) => {

@@ -4,7 +4,7 @@ import Album from "./Album";
 
 const musicSchema = new mongoose.Schema({
   title: { type: String, require: true },
-  artist: { type: mongoose.Schema.Types.ObjectId, ref: "Artist" }, //Artist
+  artist: { type: mongoose.Schema.Types.ObjectId, ref: "Artist" },
   album: { type: mongoose.Schema.Types.ObjectId, ref: "Album" },
   coverImg: String,
   ytId: { type: String, require: true, unique: true },
@@ -12,7 +12,7 @@ const musicSchema = new mongoose.Schema({
     views: { type: Number, default: 0 },
     liked: { type: Number, default: 0 },
   },
-  genre: { type: String, require: true }, //힙합, 발라드, 댄스
+  genre: { type: String, require: true },
   duration: { type: String, require: true },
 });
 

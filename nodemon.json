@@ -1,3 +1,3 @@
 {
-  "exec": "babel-node init.js"
+  "exec": "babel-node src/init.js"
 }

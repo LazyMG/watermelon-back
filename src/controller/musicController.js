@@ -3,7 +3,7 @@ import Artist from "../models/Artist";
 import NewMusic from "../models/NewMusic";
 import NewUser from "../models/NewUser";
 
-export const testGetAllMusics = async (req, res) => {
+export const getAllMusics = async (req, res) => {
   let musics = [];
 
   try {
@@ -37,28 +37,6 @@ export const getNoAlbumMusic = async (req, res) => {
   return res.json(musicsWithoutAlbum);
 };
 
-//music에 album 추가
-//album의 list에 music 추가
-export const postMusicToAlbum = async (req, res) => {
-  const { albumId, musicId } = req.body;
-
-  try {
-    await NewMusic.findByIdAndUpdate(musicId, {
-      album: albumId,
-    });
-    const album = await Album.findByIdAndUpdate(albumId, {
-      $push: { musicList: musicId },
-    });
-    if (album.musicList.length === album.totalMusic) {
-      await album.updateOne({ isComplete: true });
-    }
-  } catch (error) {
-    console.log(error);
-    return res.status(404).send("Failed");
-  }
-  return res.status(200).send("Success");
-};
-
 export const getMusicList = (req, res) => {
   return res.send("getMusicList");
 };
@@ -73,11 +51,21 @@ export const getMusic = async (req, res) => {
     console.log(error);
     return res.send("error");
   }
-  console.log(music);
+  //console.log(music);
   return res.json(music);
 };
 
-export const getArtistMusic = async (req, res) => {};
+export const getNoArtistMusic = async (req, res) => {
+  let musicsWithoutArtist;
+
+  try {
+    musicsWithoutArtist = await NewMusic.find({ artist: { $exists: false } });
+  } catch (error) {
+    console.log(error);
+    return res.status(404).json({ message: "DB Erorr", ok: false });
+  }
+  return res.json(musicsWithoutArtist);
+};
 
 export const postMusic = async (req, res) => {
   //console.log(req.body);

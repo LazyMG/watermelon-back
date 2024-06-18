@@ -25,6 +25,10 @@ import {
 
 export const globalRouter = express.Router();
 
+globalRouter.get("/", (req, res) => {
+  return res.send("Server is working!");
+});
+
 globalRouter.post("/upload/music", postMusic);
 globalRouter.post("/upload/artist", postArtist);
 globalRouter.post("/upload/album", postAlbum);

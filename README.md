@@ -53,5 +53,5 @@ DB 설계 및 구현 과정을 통해 프론트엔드 개발자로서 전체 데
 
 ### 관련 링크
 
-노션 계획표 : [링크](https://lazy-mg.notion.site/7b1dcd5713e64d61b1537b70c0bc5e46?pvs=4)<br/>
-블로그 기록 : [링크](https://velog.io/@cbfmark/series/%ED%86%A0%EC%9D%B4%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%EC%9C%A0%ED%8A%9C%EB%B8%8C%EB%AE%A4%EC%A7%81)
+노션 계획표 : [노션 링크](https://lazy-mg.notion.site/7b1dcd5713e64d61b1537b70c0bc5e46?pvs=4)<br/>
+블로그 기록 : [블로그 링크](https://velog.io/@cbfmark/series/%ED%86%A0%EC%9D%B4%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%EC%9C%A0%ED%8A%9C%EB%B8%8C%EB%AE%A4%EC%A7%81)

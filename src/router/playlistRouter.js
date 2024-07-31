@@ -7,6 +7,6 @@ import {
 
 export const playlistRouter = express.Router();
 
-playlistRouter.get("/:id", getPlaylist);
-playlistRouter.post("/:id", postPlaylist);
-playlistRouter.post("/delete/:id", deletePlaylist);
+playlistRouter.get("/:playlistId", getPlaylist);
+playlistRouter.post("/:playlistId", postPlaylist);
+playlistRouter.post("/delete/:playlistId", deletePlaylist);

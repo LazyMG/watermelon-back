@@ -12,8 +12,8 @@ export const userRouter = express.Router();
 
 userRouter.get("/session", getSession);
 
-userRouter.get("/:id/playlist", getUserPlaylist);
-userRouter.post("/:id/create-playlist", postUserPlaylist);
-userRouter.post("/:id/addPlaylist", postAddUserPlaylist);
-userRouter.post("/:id/deletePlaylist", postDeleteUserPlaylist);
-userRouter.get("/:id", getUser);
+userRouter.get("/:userId/playlist", getUserPlaylist);
+userRouter.post("/:userId/create-playlist", postUserPlaylist);
+userRouter.post("/:userId/addPlaylist", postAddUserPlaylist);
+userRouter.post("/:userId/deletePlaylist", postDeleteUserPlaylist);
+userRouter.get("/:userId", getUser);

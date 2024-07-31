@@ -3,6 +3,10 @@ import NewMusic from "../models/NewMusic";
 import Album from "../models/Album";
 import mongoose from "mongoose";
 
+//수정 필요 - 검색어에 따른 노래, 가수, 앨범 모두 가져오는 걸로
+//globalRouter - Search.jsx - getResults
+//해당 페이지에서 검색어에 맞는 데이터 GET
+//데이터 맞추기
 export const getSearchResult = async (req, res) => {
   const { keyword } = req.query;
 
@@ -11,19 +15,6 @@ export const getSearchResult = async (req, res) => {
   let albums = [];
 
   try {
-    // musics = await NewMusic.find({
-    //   title: {
-    //     $regex: new RegExp(keyword, "i"),
-    //   },
-    // })
-    //   .populate({
-    //     path: "artist",
-    //     select: "_id artistName imgUrl", // artist에서 _id와 title만 선택
-    //   })
-    //   .populate({
-    //     path: "album",
-    //     select: "_id title coverImg", // album에서 _id와 title만 선택
-    //   });
     musics = await NewMusic.find({
       $or: [
         { title: { $regex: new RegExp(keyword, "i") } },
@@ -76,11 +67,15 @@ export const getSearchResult = async (req, res) => {
     return res.status(404).json({ message: "DB Erorr", ok: false });
   }
 
+  //수정 필요
   return res
     .status(200)
     .json({ message: "Search", data: { musics, artists, albums }, ok: true });
 };
 
+//globalRouter - ArtistMusic.jsx - postMusicToArtist
+//가수와 노래를 연결 POST
+//데이터 형식 맞추기
 export const postMusicToArtist = async (req, res) => {
   const { artistId, musicId } = req.body;
 
@@ -95,9 +90,13 @@ export const postMusicToArtist = async (req, res) => {
     console.log(error);
     return res.status(404).json({ message: "DB Erorr", ok: false });
   }
+  //수정 필요
   return res.status(200).send("Success");
 };
 
+//globalRouter - ArtistAlbum.jsx - postAlbumToArtist
+//가수와 앨범을 연결 POST
+//데이터 형식 맞추기
 export const postAlbumToArtist = async (req, res) => {
   const { artistId, albumId } = req.body;
 
@@ -112,11 +111,13 @@ export const postAlbumToArtist = async (req, res) => {
     console.log(error);
     return res.status(404).json({ message: "DB Erorr", ok: false });
   }
+  //수정 필요
   return res.status(200).send("Success");
 };
 
-//music에 album 추가
-//album의 list에 music 추가
+//globalRouter - AlbumMusic.jsx - postMusicToAlbum
+//노래와 앨범을 연결 POST
+//데이터 형식 맞추기
 export const postMusicToAlbum = async (req, res) => {
   const { albumId, musicId } = req.body;
 
@@ -134,5 +135,6 @@ export const postMusicToAlbum = async (req, res) => {
     console.log(error);
     return res.status(404).send("Failed");
   }
+  //수정 필요
   return res.status(200).send("Success");
 };

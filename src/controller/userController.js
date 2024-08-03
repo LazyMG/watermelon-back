@@ -166,7 +166,7 @@ export const postUserPlaylist = async (req, res) => {
 };
 
 //너무 많이 씀, 프론트에서 하나의 함수로 통합하기, 메뉴에 재생목록에는 앨범 제외
-//userRouter - AddMusicPlaylistForm.jsx - getUserPlaylist, Layout.jsx - getUserPlaylist, PlaylistContainer.jsx - getUserPlaylist, Library.jsx - getUserPlaylist
+//userRouter - AddMusicPlaylistForm.jsx - getUserPlaylist, Layout.jsx - getUserPlaylist, PlaylistContainer.jsx - getUserPlaylist
 //사용자의 재생목록 모두 가져오기 GET
 //데이터 형식 맞추기
 export const getUserPlaylist = async (req, res) => {
@@ -195,8 +195,43 @@ export const getUserPlaylist = async (req, res) => {
     albums = user.albums; //앨범의 커버이미지와 앨범명과 id, 가수명, 가수 id
   } catch (error) {
     console.log(error);
-    //수정 필요
-    return res.status(404).json({ message: "DB Error" });
+    return res.status(404).json({ message: "DB Error", ok: false });
+  }
+
+  return res
+    .status(200)
+    .json({ message: "Playlist", playlists, albums, ok: true });
+};
+
+//userRouter - Library.jsx - getUserPlaylist
+//사용자의 재생목록 모두 가져오기 GET
+export const getUserAllPlaylists = async (req, res) => {
+  const { userId } = req.params;
+  let playlists;
+  let albums;
+  let user;
+
+  try {
+    user = await NewUser.findById(userId)
+      .populate({
+        path: "playlists", //재생목록 정보에 따른
+        populate: {
+          //재생목록 생성자의 이름과 id
+          path: "owner",
+          model: "NewUser",
+          select: "username _id",
+        },
+      })
+      .populate({
+        path: "albums", //앨범 정보에 따른
+        select: "releasedDate category coverImg title _id", //커버이미지와 앨범명과 id
+        populate: { path: "artist", model: "Artist", select: "_id artistName" }, //가수 정보에 따른 가수명과 id
+      });
+    playlists = user.playlists; //재생목록 정보 모두와 재생목록의 생성자의 이름과 생성자의 id
+    albums = user.albums; //앨범의 커버이미지와 앨범명과 id, 가수명, 가수 id
+  } catch (error) {
+    console.log(error);
+    return res.status(404).json({ message: "DB Error", ok: false });
   }
 
   return res

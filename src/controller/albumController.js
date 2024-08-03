@@ -45,6 +45,7 @@ export const postAlbum = async (req, res) => {
     duration,
     overview,
     totalMusic,
+    category,
   } = req.body;
 
   try {
@@ -55,6 +56,7 @@ export const postAlbum = async (req, res) => {
       duration,
       overview,
       totalMusic,
+      category,
     });
   } catch (error) {
     console.log(error);

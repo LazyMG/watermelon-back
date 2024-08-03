@@ -79,7 +79,7 @@ export const getPlaylist = async (req, res) => {
           path: "musicList", //앨범의 음악 정보에 따른
           populate: [
             { path: "artist", select: "_id artistName" }, //가수 id와 가수명
-            { path: "album", select: "_id title" }, //앨범 id와 앨범명
+            { path: "album", select: "_id title category releasedDate" }, //앨범 id와 앨범명
           ],
         })
         .populate({ path: "artist" });

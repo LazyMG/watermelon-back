@@ -5,7 +5,6 @@ import NewUser from "../models/NewUser";
 
 //musicRouter - Home.jsx - getMusics
 //해당 페이지에서 모든 노래 GET
-//데이터 형식 맞추기
 export const getAllMusics = async (req, res) => {
   let musics = [];
 
@@ -18,16 +17,14 @@ export const getAllMusics = async (req, res) => {
       })
       .populate({
         path: "album",
-        select: "_id title", // album에서 _id와 title만 선택
+        select: "_id title releasedDate category", // album에서 _id와 title, releasedDate, category만 선택
       });
   } catch (error) {
     console.log(error);
-
-    //수정 필요
-    return res.send("error");
+    return res.status(404).json({ message: "DB Error", ok: false });
   }
-  //수정 필요
-  return res.json(musics);
+
+  return res.status(200).json({ message: "All Musics", musics, ok: true });
 };
 
 //globalRouter - AlbumMusic.jsx - getMusics

@@ -17,6 +17,7 @@ const albumSchema = new mongoose.Schema({
   releasedDate: { type: String, required: true },
   duration: { type: String, required: true },
   overview: String,
+  category: String,
   coverImg: { type: String, required: true },
   isComplete: { type: Boolean, default: false },
   totalMusic: { type: Number, required: true },

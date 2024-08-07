@@ -5,6 +5,7 @@ import {
   getUserAllPlaylists,
   getUserPlaylist,
   postAddUserPlaylist,
+  postAddUserRecentMusic,
   postDeleteUserPlaylist,
   postUserPlaylist,
 } from "../controller/userController";
@@ -20,3 +21,4 @@ userRouter.post("/:userId/create-playlist", postUserPlaylist);
 userRouter.post("/:userId/addPlaylist", postAddUserPlaylist);
 userRouter.post("/:userId/deletePlaylist", postDeleteUserPlaylist);
 userRouter.get("/:userId", getUser);
+userRouter.post("/:userId/add-recentMusic", postAddUserRecentMusic);

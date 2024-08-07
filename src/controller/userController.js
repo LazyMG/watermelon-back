@@ -1,5 +1,6 @@
 import Album from "../models/Album";
 import Artist from "../models/Artist";
+import NewMusic from "../models/NewMusic";
 import NewUser from "../models/NewUser";
 import PlayList from "../models/Playlist";
 
@@ -288,15 +289,9 @@ export const postLogin = async (req, res) => {
   }
   console.log("로그인 후", req.session);
 
-  // let token;
-  // token = jwt.sign({ userId: user.id }, "supersecret_dont_share", {
-  //   expiresIn: "1h",
-  // });
-
   return res.status(200).json({
     message: "Login",
     ok: true,
-    // token,
     user: { userId: user._id, username: user.username, admin: user.admin },
   });
 };
@@ -373,10 +368,40 @@ export const getUser = async (req, res) => {
 
   try {
     //사용자일 때
+    //좋아요, 최근 노래 다 가져오진 말기
     channel = await NewUser.findById(userId)
-      .populate({ path: "playlists" }) //재생목록
-      .populate({ path: "likedMusic" }) //좋아요한 노래
-      .populate({ path: "recentMusic" }); //최근 들은 노래
+      .populate({
+        path: "playlists",
+        // 필요한 경우 추가적인 필드 선택 가능
+      })
+      .populate({
+        path: "likedMusic",
+        select: "title coverImg ytId duration artist album", // 필요한 필드 선택
+        populate: [
+          {
+            path: "artist",
+            select: "artistName _id", // artist 필드에서 필요한 정보만 선택
+          },
+          {
+            path: "album",
+            select: "title _id", // album 필드에서 필요한 정보만 선택
+          },
+        ],
+      })
+      .populate({
+        path: "recentMusic",
+        select: "title coverImg ytId duration artist album", // 필요한 필드 선택
+        populate: [
+          {
+            path: "artist",
+            select: "artistName _id", // artist 필드에서 필요한 정보만 선택
+          },
+          {
+            path: "album",
+            select: "title _id", // album 필드에서 필요한 정보만 선택
+          },
+        ],
+      });
     //가수일 때
     if (!channel) {
       channel = await Artist.findById(userId)
@@ -476,4 +501,49 @@ export const postGoogleLogin = async (req, res) => {
     ok: true,
     user: { userId: user._id, username: user.username, admin: user.admin },
   });
+};
+
+//userRouter - SmallMusics.jsx - clickPlayMusic, BigMusics.jsx - clickPlayMusic, RowMusics.jsx - clickPlayMusic, Playlist.jsx - clickPlayMusic, Searcj.jsx - clickPlayMusic, Watch.jsx - clickPlayMusic
+//음악을 클릭했을 때 사용자의 최근 들은 음악 목록에 추가 POST
+//자주 사용함, 함수로 따로 빼야 할 듯
+export const postAddUserRecentMusic = async (req, res) => {
+  const { music } = req.body;
+  const { userId } = req.params;
+
+  let user;
+  let targetMusic;
+
+  try {
+    user = await NewUser.findById(userId);
+  } catch (error) {
+    console.log(error);
+    return res.status(404).json({ message: "DB Error", ok: false });
+  }
+
+  if (!user) {
+    return res.status(404).json({ message: "No User", ok: false });
+  }
+
+  try {
+    targetMusic = await NewMusic.findById(music._id);
+    console.log("targetMusic", targetMusic);
+    if (!user.recentMusic.includes(targetMusic._id)) {
+      // recentMusic 배열에 추가 및 길이 조정
+      await user.updateOne({
+        $push: {
+          recentMusic: {
+            $each: [targetMusic._id], // 배열에 추가할 요소
+            $slice: -20, // 배열의 길이를 20으로 유지
+          },
+        },
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(404).json({ message: "DB Error", ok: false });
+  }
+
+  return res
+    .status(200)
+    .json({ message: "Add User Recent Playlist", ok: true });
 };

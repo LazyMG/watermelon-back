@@ -526,7 +526,6 @@ export const postAddUserRecentMusic = async (req, res) => {
 
   try {
     targetMusic = await NewMusic.findById(music._id);
-    console.log("targetMusic", targetMusic);
     if (!user.recentMusic.includes(targetMusic._id)) {
       // recentMusic 배열에 추가 및 길이 조정
       await user.updateOne({
@@ -546,4 +545,36 @@ export const postAddUserRecentMusic = async (req, res) => {
   return res
     .status(200)
     .json({ message: "Add User Recent Playlist", ok: true });
+};
+
+export const getRecentMusics = async (req, res) => {
+  const { userId } = req.params;
+
+  let user;
+  let recentMusics = [];
+
+  try {
+    user = await NewUser.findById(userId);
+  } catch (error) {
+    console.log(error);
+    return res.status(404).json({ message: "DB Error", ok: false });
+  }
+
+  if (!user) {
+    return res.status(404).json({ message: "No User", ok: false });
+  }
+
+  for (const listMusic of user.recentMusic) {
+    try {
+      const music = await NewMusic.findById(listMusic._id).populate("artist");
+      recentMusics.unshift(music);
+    } catch (error) {
+      console.error(error);
+      return res.status(404).json({ message: "DB Error", ok: false });
+    }
+  }
+
+  return res
+    .status(200)
+    .json({ message: "Recent Musics", recentMusics, ok: true });
 };

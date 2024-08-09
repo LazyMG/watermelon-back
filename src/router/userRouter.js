@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  getRecentMusics,
   getSession,
   getUser,
   getUserAllPlaylists,
@@ -22,3 +23,4 @@ userRouter.post("/:userId/addPlaylist", postAddUserPlaylist);
 userRouter.post("/:userId/deletePlaylist", postDeleteUserPlaylist);
 userRouter.get("/:userId", getUser);
 userRouter.post("/:userId/add-recentMusic", postAddUserRecentMusic);
+userRouter.get("/:userId/getRecentMusics", getRecentMusics);

@@ -100,3 +100,25 @@ export const postMusic = async (req, res) => {
   //수정 필요
   return res.status(200).send("Success");
 };
+
+//musicRouter - SmallMusics.jsx - clickPlayMusic
+export const addMusicViews = async (req, res) => {
+  const { musicId } = req.params;
+
+  try {
+    const music = await NewMusic.findByIdAndUpdate(
+      musicId,
+      { $inc: { "meta.views": 1 } }, // views 값을 1 증가
+      { new: true } // 업데이트 후의 문서를 반환
+    );
+
+    if (!music) {
+      return res.status(404).json({ message: "No Music", ok: false });
+    }
+
+    res.status(200).json({ message: "View count increased", ok: true });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "DB error", ok: false });
+  }
+};

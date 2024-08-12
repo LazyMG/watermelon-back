@@ -547,6 +547,7 @@ export const postAddUserRecentMusic = async (req, res) => {
     .json({ message: "Add User Recent Playlist", ok: true });
 };
 
+//userRouter - Home.jsx - getRecentMusics
 export const getRecentMusics = async (req, res) => {
   const { userId } = req.params;
 

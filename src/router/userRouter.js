@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  getLikeMusics,
   getRecentMusics,
   getSession,
   getUser,
@@ -8,9 +9,9 @@ import {
   postAddUserPlaylist,
   postAddUserRecentMusic,
   postDeleteUserPlaylist,
+  postLikeMusic,
   postUserPlaylist,
 } from "../controller/userController";
-import { get } from "mongoose";
 
 export const userRouter = express.Router();
 
@@ -24,3 +25,5 @@ userRouter.post("/:userId/deletePlaylist", postDeleteUserPlaylist);
 userRouter.get("/:userId", getUser);
 userRouter.post("/:userId/add-recentMusic", postAddUserRecentMusic);
 userRouter.get("/:userId/getRecentMusics", getRecentMusics);
+userRouter.get("/:userId/getLikeMusics", getLikeMusics);
+userRouter.post("/:userId/postLikeMusic", postLikeMusic);

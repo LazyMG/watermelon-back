@@ -376,6 +376,7 @@ export const getUser = async (req, res) => {
       })
       .populate({
         path: "likedMusic",
+        options: { limit: 5 },
         select: "title coverImg ytId duration artist album", // 필요한 필드 선택
         populate: [
           {
@@ -390,6 +391,7 @@ export const getUser = async (req, res) => {
       })
       .populate({
         path: "recentMusic",
+        options: { limit: 5 },
         select: "title coverImg ytId duration artist album", // 필요한 필드 선택
         populate: [
           {
@@ -507,7 +509,7 @@ export const postGoogleLogin = async (req, res) => {
 //음악을 클릭했을 때 사용자의 최근 들은 음악 목록에 추가 POST
 //자주 사용함, 함수로 따로 빼야 할 듯
 export const postAddUserRecentMusic = async (req, res) => {
-  const { music } = req.body;
+  const { musicId } = req.body;
   const { userId } = req.params;
 
   let user;
@@ -525,17 +527,21 @@ export const postAddUserRecentMusic = async (req, res) => {
   }
 
   try {
-    targetMusic = await NewMusic.findById(music._id);
-    if (!user.recentMusic.includes(targetMusic._id)) {
-      // recentMusic 배열에 추가 및 길이 조정
-      await user.updateOne({
-        $push: {
-          recentMusic: {
-            $each: [targetMusic._id], // 배열에 추가할 요소
-            $slice: -20, // 배열의 길이를 20으로 유지
+    targetMusic = await NewMusic.findById(musicId);
+    if (targetMusic) {
+      if (!user.recentMusic.includes(targetMusic._id)) {
+        // recentMusic 배열에 추가 및 길이 조정
+        await user.updateOne({
+          $push: {
+            recentMusic: {
+              $each: [targetMusic._id], // 배열에 추가할 요소
+              $slice: -20, // 배열의 길이를 20으로 유지
+            },
           },
-        },
-      });
+        });
+      }
+    } else {
+      return res.status(404).json({ message: "No Music", ok: false });
     }
   } catch (error) {
     console.log(error);
@@ -578,4 +584,91 @@ export const getRecentMusics = async (req, res) => {
   return res
     .status(200)
     .json({ message: "Recent Musics", recentMusics, ok: true });
+};
+
+//userRouter
+export const getLikeMusics = async (req, res) => {
+  const { userId } = req.params;
+
+  let user;
+  let likeMusics = [];
+
+  try {
+    user = await NewUser.findById(userId).populate("likedMusic");
+  } catch (error) {
+    console.log(error);
+    return res.status(404).json({ message: "DB Error", ok: false });
+  }
+
+  if (!user) {
+    return res.status(404).json({ message: "No User", ok: false });
+  }
+
+  for (const listMusic of user.likedMusic) {
+    try {
+      const music = await NewMusic.findById(listMusic._id).populate("artist");
+      likeMusics.unshift(music);
+    } catch (error) {
+      console.error(error);
+      return res.status(404).json({ message: "DB Error", ok: false });
+    }
+  }
+
+  return res.status(200).json({ message: "Like Musics", likeMusics, ok: true });
+};
+
+//userRouter
+export const postLikeMusic = async (req, res) => {
+  const { musicId, like } = req.body;
+  const { userId } = req.params;
+
+  let user;
+  let targetMusic;
+
+  try {
+    user = await NewUser.findById(userId);
+  } catch (error) {
+    console.log(error);
+    return res.status(404).json({ message: "DB Error", ok: false });
+  }
+
+  if (!user) {
+    return res.status(404).json({ message: "No User", ok: false });
+  }
+
+  try {
+    targetMusic = await NewMusic.findById(musicId);
+  } catch (error) {
+    console.log(error);
+    return res.status(404).json({ message: "DB Error", ok: false });
+  }
+
+  if (!targetMusic) {
+    return res.status(404).json({ message: "No Music", ok: false });
+  }
+
+  if (like) {
+    //사용자 목록에 추가하기
+    if (!user.likedMusic.includes(targetMusic._id)) {
+      await user.updateOne({
+        $push: {
+          likedMusic: {
+            $each: [targetMusic._id], // 배열에 추가할 요소
+            $slice: -20, // 배열의 길이를 20으로 유지
+          },
+        },
+      });
+    }
+  } else {
+    //사용자 목록에서 제거하기
+    if (user.likedMusic.includes(targetMusic._id)) {
+      await user.updateOne({
+        $pull: {
+          likedMusic: targetMusic._id,
+        },
+      });
+    }
+  }
+
+  return res.status(200).json({ message: "Add User Like Playlist", ok: true });
 };

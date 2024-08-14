@@ -122,3 +122,28 @@ export const addMusicViews = async (req, res) => {
     res.status(500).json({ message: "DB error", ok: false });
   }
 };
+
+//musicRouter
+export const updateMusicLikes = async (req, res) => {
+  const { like } = req.body;
+  const { musicId } = req.params;
+
+  try {
+    const music = await NewMusic.findByIdAndUpdate(
+      musicId,
+      { $inc: { "meta.liked": like ? 1 : -1 } },
+      { new: true }
+    );
+    if (!music) {
+      return res.status(404).json({ message: "No Music", ok: false });
+    }
+    if (music.meta.liked < 0) {
+      music.meta.liked = 0; // 값을 0으로 설정
+      await music.save(); // 변경사항을 저장
+    }
+    res.status(200).json({ message: "Like count update", ok: true });
+  } catch (error) {
+    console.log(error);
+    return res.status(404).json({ message: "DB Error", ok: false });
+  }
+};

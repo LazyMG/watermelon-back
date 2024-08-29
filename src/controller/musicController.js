@@ -147,3 +147,23 @@ export const updateMusicLikes = async (req, res) => {
     return res.status(404).json({ message: "DB Error", ok: false });
   }
 };
+
+export const getMusicIsLike = async (req, res) => {
+  const { musicId } = req.params;
+  const userId = req.session.user?.userId;
+
+  let isLike = false;
+
+  try {
+    const user = await NewUser.findById(userId);
+    if (!user)
+      return res
+        .status(404)
+        .json({ message: "DB Error | No User", isLike, ok: false });
+    isLike = user.likedMusic.includes(musicId);
+    return res.status(200).json({ message: "isLike", isLike, ok: true });
+  } catch (error) {
+    console.log(error);
+    return res.status(404).json({ message: "DB Error", isLike, ok: false });
+  }
+};

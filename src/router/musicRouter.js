@@ -3,6 +3,7 @@ import {
   addMusicViews,
   getAllMusics,
   getMusic,
+  getMusicIsLike,
   getMusicList,
   updateMusicLikes,
 } from "../controller/musicController";
@@ -14,3 +15,4 @@ musicRouter.get("/list", getMusicList);
 musicRouter.get("/:musicId", getMusic);
 musicRouter.patch("/:musicId/add-views", addMusicViews);
 musicRouter.post("/:musicId/updateMusicLike", updateMusicLikes);
+musicRouter.get("/:musicId/isLike", getMusicIsLike);

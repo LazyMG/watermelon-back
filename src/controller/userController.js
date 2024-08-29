@@ -204,7 +204,7 @@ export const getUserPlaylist = async (req, res) => {
     .json({ message: "Playlist", playlists, albums, ok: true });
 };
 
-//userRouter - Library.jsx - getUserPlaylist
+//userRouter - getFunctions.js - getUserAllPlayListQuery
 //사용자의 재생목록 모두 가져오기 GET
 export const getUserAllPlaylists = async (req, res) => {
   const { userId } = req.params;
@@ -358,7 +358,7 @@ export const postCreateAccount = async (req, res) => {
   return res.status(200).json({ message: "Create Account", ok: true });
 };
 
-//userRouter - Channel.jsx - getChannelData
+//userRouter - getFunctions.js - getChannelDataQuery
 //사용자 또는 가수의 정보 GET
 export const getUser = async (req, res) => {
   const { userId } = req.params;
@@ -553,7 +553,7 @@ export const postAddUserRecentMusic = async (req, res) => {
     .json({ message: "Add User Recent Playlist", ok: true });
 };
 
-//userRouter - Home.jsx - getRecentMusics
+//userRouter - getFunctions.js - getRecentMusicsQuery
 export const getRecentMusics = async (req, res) => {
   const { userId } = req.params;
 

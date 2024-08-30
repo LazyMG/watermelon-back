@@ -400,14 +400,17 @@ export const getUser = async (req, res) => {
           },
           {
             path: "album",
-            select: "title _id", // album 필드에서 필요한 정보만 선택
+            select: "title _id category releasedDate", // album 필드에서 필요한 정보만 선택
           },
         ],
       });
     //가수일 때
     if (!channel) {
       channel = await Artist.findById(userId)
-        .populate("albumList") //모든 앨범
+        .populate({
+          path: "albumList",
+          populate: [{ path: "artist", select: "_id artistName" }],
+        }) //모든 앨범
         .populate({
           path: "musicList", //가수의 노래 목록 중 5개
           options: { limit: 5 },

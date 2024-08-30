@@ -13,11 +13,11 @@ export const getAllMusics = async (req, res) => {
       .limit(20)
       .populate({
         path: "artist",
-        select: "_id artistName", // artist에서 _id와 title만 선택
+        select: "_id artistName imgUrl", // artist에서 _id와 title, imgUrl 선택
       })
       .populate({
         path: "album",
-        select: "_id title releasedDate category", // album에서 _id와 title, releasedDate, category만 선택
+        select: "_id title releasedDate category coverImg", // album에서 _id와 title, releasedDate, category, coverImg만 선택
       });
   } catch (error) {
     console.log(error);

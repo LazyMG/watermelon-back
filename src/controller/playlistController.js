@@ -65,13 +65,15 @@ export const getPlaylist = async (req, res) => {
 
   try {
     //재생목록일 때
-    playlist = await PlayList.findById(playlistId).populate({
-      path: "list", //재생목록의 음악 정보에 따른
-      populate: [
-        { path: "artist", select: "_id artistName" }, //가수 id와 가수명
-        { path: "album", select: "_id title" }, //앨범 id와 앨범명
-      ],
-    });
+    playlist = await PlayList.findById(playlistId)
+      .populate({
+        path: "list", //재생목록의 음악 정보에 따른
+        populate: [
+          { path: "artist", select: "_id artistName" }, //가수 id와 가수명
+          { path: "album", select: "_id title" }, //앨범 id와 앨범명
+        ],
+      })
+      .populate({ path: "owner", select: "_id username" });
     //앨범일 때
     if (!playlist) {
       playlist = await Album.findById(playlistId)
